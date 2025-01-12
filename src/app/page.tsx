@@ -49,7 +49,7 @@ export default function Home() {
                   {recentUrls.map((url, index) => (
                       <li key={index}
                           className="flex flex-row justify-between items-center p-2 border rounded-lg shadow-sm">
-                          <a href={url.urlCode} className="text-blue-500 hover:underline">{url.urlCode}</a>
+                          <a href={url.urlCode} className="text-blue-500 hover:underline">{url.shortUrl}</a>
                           <span className="text-gray-600">{url.clicks} clicks</span>
                       </li>
                   ))}
