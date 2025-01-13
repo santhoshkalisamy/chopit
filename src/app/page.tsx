@@ -5,11 +5,14 @@ import ShortUrlOutput from "@/components/ShortUrlOutput";
 import React, {useEffect} from "react";
 import {Toaster} from "sonner";
 import {chopit, getUrlStats, Url} from "@/actions/URLShorteningAction";
+import Link from "next/link";
+import validator from "validator";
 
 export default function Home() {
 
     const [shortUrl, setShortUrl] = React.useState<string>("");
     const [recentUrls, setRecentUrls] = React.useState<Url[]>([]);
+    const [loading, setLoading] = React.useState<boolean>(true);
 
     async function handleShorten(e: React.FormEvent) {
         e.preventDefault();
@@ -17,9 +20,14 @@ export default function Home() {
         const url = formData.get("longURL") as string;
         console.log(url);
         console.log("Shorten URL");
-        const shortUrl = await chopit(url, "");
-        setShortUrl(shortUrl);
-        fetchRecentUrls();
+        if(validator.isURL(url)) {
+            const shortUrl = await chopit(url, "");
+            setShortUrl(shortUrl);
+            fetchRecentUrls();
+        } else {
+            alert("Please enter a valid URL");
+        }
+
     }
 
     function fetchRecentUrls() {
@@ -27,10 +35,12 @@ export default function Home() {
             .then(res => res.urls)
             .then(data => {
                 setRecentUrls(data);
+                setLoading(false);
             });
     }
 
     useEffect(() => {
+        setLoading(true);
         fetchRecentUrls();
     },[]);
 
@@ -38,22 +48,23 @@ export default function Home() {
       <div className="max-w-lg mx-auto">
           <div className="mt-10 flex flex-col justify-between">
               <form className="w-full flex flex-row gap-5 justify-between" onSubmit={handleShorten}>
-                  <Input className="w-full" id={"longURL"} name={"longURL"} placeholder={"Enter URL"} type={"text"}/>
+                  <Input required className="w-full" id={"longURL"} name={"longURL"} placeholder={"Enter URL"} type={"text"}/>
                   <Button type="submit" variant="default" size="lg">ChopIt</Button>
               </form>
-              <ShortUrlOutput shortUrl={shortUrl}/>
+              {shortUrl && <ShortUrlOutput shortUrl={shortUrl}/>}
           </div>
           <div className="mt-5">
               <h1 className="text-2xl font-bold mb-4">Recent URLs</h1>
-              <ul className="space-y-2">
+              {loading ?  <p>Please wait</p>  : recentUrls.length === 0 ? <p>No Urls found</p> : <ul className="space-y-2">
                   {recentUrls.map((url, index) => (
                       <li key={index}
                           className="flex flex-row justify-between items-center p-2 border rounded-lg shadow-sm">
-                          <a href={url.urlCode} className="text-blue-500 hover:underline">{url.shortUrl}</a>
+                          <Link target="_blank" href={url.urlCode}
+                                className="text-blue-500 hover:underline">{url.shortUrl}</Link>
                           <span className="text-gray-600">{url.clicks} clicks</span>
                       </li>
                   ))}
-              </ul>
+              </ul>}
           </div>
           <Toaster/>
       </div>
