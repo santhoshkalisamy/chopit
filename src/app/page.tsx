@@ -55,16 +55,31 @@ export default function Home() {
           </div>
           <div className="mt-5">
               <h1 className="text-2xl font-bold mb-4">Recent URLs</h1>
-              {loading ?  <p>Please wait</p>  : recentUrls.length === 0 ? <p>No Urls found</p> : <ul className="space-y-2">
-                  {recentUrls.map((url, index) => (
-                      <li key={index}
-                          className="flex flex-row justify-between items-center p-2 border rounded-lg shadow-sm">
-                          <Link target="_blank" href={url.urlCode}
-                                className="text-blue-500 hover:underline">{url.shortUrl}</Link>
-                          <span className="text-gray-600">{url.clicks} clicks</span>
-                      </li>
-                  ))}
-              </ul>}
+              {loading ? (
+                  <div className="flex justify-center items-center">
+                      <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+                  </div>
+              ) : recentUrls.length === 0 ? (
+                  <p>No URLs found</p>
+              ) : (
+                  <ul className="space-y-2">
+                      {recentUrls.map((url, index) => (
+                          <li
+                              key={index}
+                              className="flex flex-row justify-between items-center p-2 border rounded-lg shadow-sm"
+                          >
+                              <Link
+                                  target="_blank"
+                                  href={url.urlCode}
+                                  className="text-blue-500 hover:underline"
+                              >
+                                  {url.shortUrl}
+                              </Link>
+                              <span className="text-gray-600">{url.clicks} clicks</span>
+                          </li>
+                      ))}
+                  </ul>
+              )}
           </div>
           <Toaster/>
       </div>
