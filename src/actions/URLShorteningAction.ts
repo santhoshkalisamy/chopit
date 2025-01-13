@@ -3,6 +3,8 @@
 import {customAlphabet} from "nanoid";
 import {init} from "@/lib/init-mongodb";
 import Url from "@/models/URL";
+import QRCode from "qrcode";
+
 
 type ValidationResponse = {
     success: boolean
@@ -17,7 +19,7 @@ export type Url = {
     clicks: number
 }
 
-export const chopit = async (url: string, customString: string):Promise<string> => {
+export const chopit = async (url: string, customString: string):Promise<{url:string, qrCode:string}> => {
 
     await init();
 
@@ -46,7 +48,10 @@ export const chopit = async (url: string, customString: string):Promise<string> 
     });
 
     const result = await shortUrl.save();
-    return result.shortUrl;
+
+    const qrCode = await QRCode.toDataURL(result.shortUrl);
+
+    return { url: result.shortUrl, qrCode: qrCode };
 }
 
 function generateRandomString(length: number): string {

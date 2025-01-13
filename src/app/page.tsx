@@ -7,12 +7,21 @@ import {Toaster} from "sonner";
 import {chopit, getUrlStats, Url} from "@/actions/URLShorteningAction";
 import Link from "next/link";
 import validator from "validator";
+import Image from "next/image";
 
 export default function Home() {
 
     const [shortUrl, setShortUrl] = React.useState<string>("");
     const [recentUrls, setRecentUrls] = React.useState<Url[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
+    const [qrCode, setQrCode] = React.useState<string>("");
+
+    function handleDownload() {
+        const a = document.createElement("a");
+        a.href = qrCode;
+        a.download = "qr-code.png";
+        a.click();
+    }
 
     async function handleShorten(e: React.FormEvent) {
         e.preventDefault();
@@ -21,8 +30,9 @@ export default function Home() {
         console.log(url);
         console.log("Shorten URL");
         if(validator.isURL(url)) {
-            const shortUrl = await chopit(url, "");
-            setShortUrl(shortUrl);
+            const result = await chopit(url, "");
+            setShortUrl(result.url);
+            setQrCode(result.qrCode);
             fetchRecentUrls();
         } else {
             alert("Please enter a valid URL");
@@ -52,6 +62,10 @@ export default function Home() {
                   <Button type="submit" variant="default" size="lg">ChopIt</Button>
               </form>
               {shortUrl && <ShortUrlOutput shortUrl={shortUrl}/>}
+              {qrCode && <div>
+                  <Image width={512} height={512} src={qrCode} alt="QR Code" className="mt-5 w-40 h-40"/>
+                  <Button className="mt-10" variant="default" size="sm" onClick={handleDownload}>Download QR Code</Button>
+              </div>}
           </div>
           <div className="mt-5">
               <h1 className="text-2xl font-bold mb-4">Recent URLs</h1>
